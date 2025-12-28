@@ -1,9 +1,10 @@
 import pynput.keyboard as keyboard
+import urllib.request
 import string
 import json
-import urllib.request
 import os
 import platform
+from random import randint
 from time import sleep
 from itertools import product, chain
 from bs4 import BeautifulSoup
@@ -26,13 +27,14 @@ for pkg in pip_packages:
 # --- Setup ---
 running = False
 closeit = True
-print("There are two methods for finding good names.")
+print("There are three methods for finding good names.")
 print("Method 1: Random suffixes. This will put a short but random suffix to your desired name (e.g drew8n). Faster and endless but not as clean.")
 print("Method 2: Predetermined suffixes. You will input the suffixes you want yourself. This is cleaner but not endless. You will have the choice to have multiple base names.")
+print("Method 3: Short names. You will choose how many letters you want, and it'll scan for random names. These are rarer, but pretty cool if you get one.")
 choosing = True
 while choosing:
     method = input("Choose: ")
-    if method == "1" or method == "2":
+    if method == "1" or method == "2" or method == "3":
         choosing = False
         method = int(method)
     else: 
@@ -41,7 +43,7 @@ if method == 1:
     target_base = input("Base name you want: ")
     symbols = string.digits + "._" + string.ascii_lowercase
     combinations = chain.from_iterable(product(symbols, repeat=l) for l in range(1, 6))
-else:
+elif method == 2:
     multi = []
     suffixes = []
     print("You have chosen method 2. Pick as many base names as you want. When you are done, input done.")
@@ -62,6 +64,16 @@ else:
             suffixes.append(choice)
     multi_counter = 0
     suffix_counter = 0
+else:
+    choosing = True
+    symbols = string.digits + "._" + string.ascii_lowercase
+    while choosing:
+        amount = input("Amount of letters you want in your name: ")
+        try:
+            amount = int(amount)
+            choosing = False
+        except:
+            print("Invalid. You must type a number.")
 
 def on_press(key):  # This handles our hotkeys for pausing and exiting
     global running, closeit
@@ -90,7 +102,7 @@ while closeit:
             if suffix[-1] == ".":  # Names can't end with "." on tiktok so we move on to the next
                 suffix = "".join(next(combinations))
             current_target = target_base + suffix
-        else:
+        elif method == 2:
             try:
                 current_target = multi[multi_counter] + suffixes[suffix_counter]
             except IndexError:
@@ -102,7 +114,11 @@ while closeit:
                     print("Done!")
                     current_target == "Thanks for using my script."
             suffix_counter += 1
-        
+        else:
+            current_target = ""
+            for _ in range(amount):
+                current_target += symbols[randint(0, 37)] 
+
         url = f"https://www.tiktok.com/@{current_target}"
        
         # This sets up the headers so we dont get blocked
@@ -131,9 +147,9 @@ while closeit:
             else:
                 print(f"❓ {current_target} returned unknown status: {status_code}")
         else:
-            print(f"⚠️ Could not find data for {current_target} (Bot detection?)")
+            print(f"⚠️ Could not find data for {current_target} (Possible bot detection?)")
 
             # TikTok will ban your IP if you go too fast, so we wait a bit
-            sleep(1.5) 
+            sleep(1) 
     else:
         sleep(0.25)
