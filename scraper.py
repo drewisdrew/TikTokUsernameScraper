@@ -16,11 +16,13 @@ for pkg in pip_packages:
     except ImportError:
         print(f"❌ {pkg} is not installed. Installing dependencies....")
         if "Windows" in platform.system():
+            os.system("py -m pip install pynput")
+            os.system("py -m pip install beautifulsoup4")
+            os.system("py -m pip install lxml")
+        elif "Linux" in platform.system():
             os.system("pip install pynput")
             os.system("pip install beautifulsoup4")
-        elif "Linux" in platform.system():
-            os.system("pip install pynput --break-system-packages")
-            os.system("pip install beautifulsoup4 --break-system-packages")
+            os.system("pip install lxml")
         else:
             print("It seems your system isn't supported. The supported systems are Windows and Linux. Expect crashes.")
             sleep(3)
